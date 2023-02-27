@@ -5,13 +5,13 @@ from fastai.tabular.all import *
 
 
 # gather more data
-def gatherdata():
+def gather_data():
     # where to start the runs
-    run_number = 14500230
-    # where to save csv
-    csv_location = r"C:\Users\Filipe\Documents\runData.csv"
+    run_number = 14500231
+    # where to save csv (User\Documents\runData.csv)
+    csv_location = os.path.join(os.path.expanduser('~'), 'Documents', 'runData.csv')
     # how many queries in a row
-    max_queries = 450
+    max_queries = 1
 
     # check if file exists, if it does not then make header row
     if not os.path.exists(csv_location):
@@ -22,7 +22,7 @@ def gatherdata():
     # open file to prepare appending
     data_file = open(csv_location, "a")
 
-    for x in range (1, max_queries):
+    for x in range (max_queries):
         # generate query string
         query_string = "https://raider.io/api/v1/mythic-plus/run-details?season=season-df-1&id=" + str(run_number + x)
 
@@ -57,4 +57,4 @@ def gatherdata():
 
 
 # gather data
-gatherdata()
+gather_data()
