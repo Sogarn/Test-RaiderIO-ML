@@ -1,34 +1,42 @@
-import json
-import requests
-import os.path
-import time
-import math
+import json, requests, os.path, time, math, random
+# create random number generator for skipping between sequential runs
+rng = random.seed()
 
 # decent run starts are 21,000,000 for tyrannical and 23,000,000 for fortified
 # where to start the runs
-run_start = 23000000
+run_start = 21500000
 # where to save csv (User\Documents\runData.csv)
 csv_location = os.path.join(os.path.expanduser('~'), 'Documents', 'runData.csv')
 # how many queries per run (raider io API caps at 300 requests per minute)
 queries_per_run = 150
-# total number of queries
-max_queries = 2100
+# total number of runs
+max_runs = 3
 
 # check if file exists, if it does not then make header row
 if not os.path.exists(csv_location):
-    data_file = open(csv_location, "x")
-    data_file.write("run_number,key_level,dungeon,affix,faction,ilvl,spec,locale,io_score,world_rank,chests\n")
-    data_file.close()
+    create_data_file = open(csv_location, "x")
+    create_data_file.write("run_number,key_level,dungeon,affix,faction,ilvl,spec,locale,io_score,world_rank,chests\n")
+    create_data_file.close()
+
+# for more consistent progress updates
+completion_checkpoint1 = queries_per_run * 0.25
+completion_checkpoint2 = queries_per_run * 0.5
+completion_checkpoint3 = queries_per_run * 0.75
+
 
 # gather more data
 def gather_data():
+    # store progress booloans, once they are passed they switch to false
+    checkpoint1 = True
+    checkpoint2 = True
+    checkpoint3 = True
 
     # open file to prepare appending
     data_file = open(csv_location, "a")
 
-    for x in range (queries_per_run):
+    for x in range(queries_per_run):
+        # update run number
         run_number = run_start + x
-        # print(f"Processing run {run_number}")
         # generate query string
         query_string = "https://raider.io/api/v1/mythic-plus/run-details?season=season-df-1&id=" + str(run_number)
 
@@ -61,29 +69,36 @@ def gather_data():
                                 f"{str(player['ranks']['score'])},"
                                 f"{str(player['ranks']['world'])},"
                                 f"{chests}\n")
+        # logic to post progress checkpoints only once each
+        if checkpoint1 and (x > completion_checkpoint1):
+            checkpoint1 = False
+            print("Current run progress is at 25%...")
+        elif checkpoint2 and (x > completion_checkpoint2):
+            checkpoint2 = False
+            print("Current run progress is at 50%...")
+        elif checkpoint3 and (x > completion_checkpoint3):
+            checkpoint3 = False
+            print("Current run progress is at 75%...")
     # close file
     data_file.close()
+    print("Current run is complete.")
 pass
 
-
-current_queries = 0
-print(f"Batch processing started...")
-while current_queries < max_queries:
-    print(f"{current_queries} / {max_queries} runs complete...")
+current_run = 0
+# Changed this to a for loop since functionally that is what it was doing anyway
+for run in range(max_runs):
+    # report status
+    print(f"Starting run {run + 1} / {max_runs}.")
     # start timer
     start_time = time.time()
     # gather data
     gather_data()
-    # update run start number
-    run_start += queries_per_run
-    # update number of queries
-    current_queries += queries_per_run
-    # check to see that we are not done before doing time check
-    if current_queries < max_queries:
-        # check how much time has elapsed
-        elapsed_time = math.floor(time.time() - start_time)
-        # do not exceed one run per minute just to be safe
-        if elapsed_time < 60:
-            print(f"Waiting for {60 - elapsed_time} seconds...")
-            time.sleep(60 - elapsed_time)
+    # update run start number and add a bit of randomness
+    run_start += queries_per_run + rng.randrange(10)
+    # check how much time has elapsed
+    elapsed_time = math.floor(time.time() - start_time)
+    # do not exceed one run per minute just to be safe (and make sure we are not about to be done)
+    if ((run + 1) < max_runs) and (elapsed_time < 60):
+        print(f"Waiting for {60 - elapsed_time} seconds...")
+        time.sleep(60 - elapsed_time)
 print("All runs complete!")
