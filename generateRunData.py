@@ -1,3 +1,5 @@
+# note this worked with an older version of raider io API
+
 import json, requests, os.path, time, math, random
 # create random number generator for skipping between sequential runs
 rng = random.seed()
