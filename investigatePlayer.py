@@ -1,7 +1,7 @@
 # server name
 player_server = "Shadow Council"
 # list of player names
-player_names = ["Magicpally","Magichunter","Maregasm","Magicshaman","Magicmonk"]
+player_names = ["Magicpally","Magichunter","Maregasm","Magicshaman","Magicmonk", "Magicdeath"]
 # number of weeks to look back
 week_count = 4
 
@@ -124,5 +124,3 @@ for name in player_names:
     print()
     # run main function
     main(player_server, name, week_count)
-    # blank line
-    print()
