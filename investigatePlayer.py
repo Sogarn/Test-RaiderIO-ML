@@ -1,7 +1,7 @@
 # server name
 player_server = "Shadow Council"
 # list of player names
-player_names = ["Magicpally","Magichunter","Maregasm","Magicshaman","Magicmonk", "Magicdeath"]
+player_names = ["Hevensrath","Hevensword","Hevensdemon","Hevensreaper","Hevensnature","Hevenlystorm"]
 # number of weeks to look back
 week_count = 4
 
